@@ -24,19 +24,19 @@ resource "aws_vpc" "vpc" {
 resource "aws_internet_gateway" "igw" {
     vpc_id                  = "${aws_vpc.vpc.id}"
     map_public_ip_on_launch = "true"
-    availability_zone       = "{data.aws_availability_zones.available.names[0]}"
+    availability_zone       = "${data.aws_availability_zones.available.names[0]}"
 }
 
 resource "aws_subnet" "subnet1" {
   cidr_block                = "${var.subnet1_address_space}"
   vpc_id                    ="${aws_vpc.vpc.id}"
   map_public_ip_on_launch   = "true"
-  availability_zone         = "${data.aws.availability_zones.available.names[0]}"
+  availability_zone         = "${data.aws_availability_zones.available.names[0]}"
 }
 
 resource "aws_subnet" "subnet2" {
   cidr_block                = "${var.subnet2_address_space}"
   vpc_id                    = "${aws_vpc.vpc.id}"
   map_public_ip_on_launch   = "true"
-  availability_zone         = "${data.aws.availability_zones.available.names[1]}"
+  availability_zone         = "${data.aws_availability_zones.available.names[1]}"
 }
