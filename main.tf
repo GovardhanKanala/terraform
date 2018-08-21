@@ -110,7 +110,7 @@ resource "aws_instance" "nginx1" {
 
 connection {
   user                    = "ec2-user"
-  private_key             = "${file(var.private_key_Path)}"
+  private_key             = "${file(var.private_key_path)}"
 }
 
 provisioner "remote-exec" {
