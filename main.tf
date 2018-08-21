@@ -41,7 +41,7 @@ resource "aws_subnet" "subnet2" {
 # ROUTING #
 
 resource "aws_route_table" "rtb" {
-  vpc_id                  = ${aws_vpc.vpc.id}
+  vpc_id                  = "${aws_vpc.vpc.id}"
 
  route {
    cidr_block             = "0.0.0.0/0"
