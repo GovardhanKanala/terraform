@@ -11,11 +11,14 @@ variable "aws_secret_key" {
 }
 
 variable "private_key_path" {
-  default = ""
+  default = "/var/jenkins_home/.ssh/id_rsa"
+}
+variable "PATH_TO_PUBLIC_KEY" {
+  default = "/var/jenkins_home/.ssh/id_rsa.pub"
 }
 
 variable "key_name" {
-  default = ""
+  default = "jenkins-slave"
 }
 
 variable "network_address_space" {
