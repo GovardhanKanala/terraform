@@ -13,7 +13,7 @@ region       = "us-east-1"
 
 resource "aws_key_pair" "terraform_key" {
     key_name = "terraform_key"
-    public_key = "${file("${var.PATH_TO_PUBLICKEY}")}"
+    public_key = "${file("${var.PATH_TO_PUBLIC_KEY}")}"
 }
 
 
