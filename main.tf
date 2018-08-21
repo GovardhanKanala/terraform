@@ -62,9 +62,8 @@ resource "aws_route_table_association" "rta-subnet2" {
 # SECURITY GROUPS #
 #Nginx security group
 resource "aws_security_group" "nginx-sg" {
-    name                  = "nginx_sg"
+    name                  = "nginx-sg"
     vpc_id                = "${aws_vpc.vpc.id}"
-}
 
 #SSH access from anywhere
 ingress {
@@ -89,7 +88,7 @@ egress {
   protocol                = "-1"
   cidr_blocks             = ["0.0.0.0/0"]
 }
-
+}
 # INSTANCES #
 resource "aws_instance" "nginx1" {
   ami                     = "ami-c58c1dd3"
@@ -97,7 +96,7 @@ resource "aws_instance" "nginx1" {
   subnet_id               = "${aws_subnet.subnet1.id}"
   vpc_security_group_ids  = ["${aws_security_group.nginx-sg.id}"]
   key_name                = "${var.key_name}"
-}
+
 connection {
   user                    = "ec2-user"
   private_key             = "${file(var.private_key_Path)}"
@@ -109,6 +108,7 @@ provisioner "remote-exec" {
     "sudo service nginx start",
     "echo <html><head><title>Blue Team Server</title></head></html>"
   ]
+}
 }
 ################################################################################
 #output
