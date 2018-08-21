@@ -29,14 +29,14 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_subnet" "subnet1" {
   cidr_block                = "${var.subnet1_address_space}"
-  vpc_id                    ="${var.aws_vpc.vpc.id}"
+  vpc_id                    ="${aws_vpc.vpc.id}"
   map_public_ip_on_launch   = "true"
   availability_zone         = "${data.aws.availability_zones.available.names[0]}"
 }
 
 resource "aws_subnet" "subnet2" {
   cidr_block                = "${var.subnet2_address_space}"
-  vpc_id                    = "${var.vpc_id.vpc.id}"
+  vpc_id                    = "${aws_vpc.vpc.id}"
   map_public_ip_on_launch   = "true"
   availability_zone         = "${data.aws.availability_zones.available.names[1]}"
 }
