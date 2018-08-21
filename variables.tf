@@ -18,7 +18,7 @@ variable "PATH_TO_PUBLIC_KEY" {
 }
 
 variable "key_name" {
-  default = "jenkins-slave"
+  default = "terraform_key"
 }
 
 variable "network_address_space" {
