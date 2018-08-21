@@ -107,7 +107,7 @@ provisioner "remote-exec" {
   inline                  = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
-    "echo '<html><head><title>Blue Team Server</title></head><body style =\"backgroud-color:#1
+    "echo <html><head><title>Blue Team Server</title></head><body style =\"backgroud-color:#1
   ]
 }
 ################################################################################
