@@ -143,8 +143,8 @@ provisioner "remote-exec" {
   inline            = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
-    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /var/www/html/index.html",
-    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /var/www/html/index.html",
+    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /usr/share/nginx/html/index.html",
+    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
     ]
 }
 }
@@ -167,8 +167,8 @@ provisioner "remote-exec" {
   inline            = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
-    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /var/www/html/index.html",
-    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /var/www/html/index.html",
+    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /usr/share/nginx/html/index.html",
+    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
     ]
 }
 }
