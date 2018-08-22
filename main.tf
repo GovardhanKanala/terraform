@@ -84,6 +84,30 @@ ingress {
   cidr_blocks             = ["0.0.0.0/0"]
 }
 
+#HTTP access from VPC
+ingress {
+  from_port               = 80
+  to_port                 = 80
+  protocol                = "tcp"
+  cidr_blocks             = ["${var.network_address_space}"]
+}
+
+#Outbound internet access
+egress {
+  from_port               = 0
+  to_port                 = 0
+  protocol                = "-1"
+  cidr_blocks             = ["0.0.0.0/0"]
+}
+}
+
+
+# SECURITY GROUPS #
+#Nginx security group
+resource "aws_security_group" "elb-sg" {
+    name                  = "nginx-elb-sg"
+    vpc_id                = "${aws_vpc.vpc.id}"
+
 #HTTP access from anywhere
 ingress {
   from_port               = 80
@@ -100,6 +124,8 @@ egress {
   cidr_blocks             = ["0.0.0.0/0"]
 }
 }
+
+
 # INSTANCES #
 resource "aws_instance" "nginx1" {
   ami                     = "ami-c58c1dd3"
@@ -114,16 +140,60 @@ connection {
 }
 
 provisioner "remote-exec" {
-  inline                  = [
+  inline            = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
+    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /var/www/html/index.html",
+    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /var/www/html/index.html",
     ]
 }
 }
+
+
+
+resource "aws_instance" "nginx2" {
+  ami                     = "ami-c58c1dd3"
+  instance_type           = "t2.micro"
+  subnet_id               = "${aws_subnet.subnet2.id}"
+  vpc_security_group_ids  = ["${aws_security_group.nginx-sg.id}"]
+  key_name                = "${var.key_name}"
+
+connection {
+  user                    = "ec2-user"
+  private_key             = "${file(var.private_key_path)}"
+}
+
+provisioner "remote-exec" {
+  inline            = [
+    "sudo yum install nginx -y",
+    "sudo service nginx start",
+    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /var/www/html/index.html",
+    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /var/www/html/index.html",
+    ]
+}
+}
+
+
+# lOAD BALANCER #
+
+resource "aws_elb" "web" {
+  name              = "ngin_web"
+
+  subnet            = ["${aws.subnet.subnet1.id}, ${aws.subnet.subnet2.id}"]
+  security_group    = ["${aws_security_group.elb-sg.id}"]
+  instance          = ["${aws.instance.nginx1.id}, ${aws.instance.nginx2.id}"]
+listener {
+  instance_port     = 80
+  instance_protocol = "http"
+  lb_port           = 80
+  lb_protocol       = "http"
+}
+}
+
 ################################################################################
 #output
 ################################################################################
-output "aws_instance_public_dns"
+output "aws_elb_public_dns"
 {
-  value                   = "${aws_instance.nginx1.public_dns}"
+  value                   = "${aws_elb.web.dns_name}"
 }
