@@ -177,17 +177,16 @@ provisioner "remote-exec" {
 # lOAD BALANCER #
 
 resource "aws_elb" "web" {
-  name              = "ngin_web"
-
-  subnet            = ["${aws_subnet.subnet1.id}, ${aws_subnet.subnet2.id}"]
-  security_group    = ["${aws_security_group.elb-sg.id}"]
-  instance          = ["${aws_instance.nginx1.id}, ${aws_instance.nginx2.id}"]
+  name              = "nginx-web"
+  subnets            = ["${aws_subnet.subnet1.id}, ${aws_subnet.subnet2.id}"]
+  security_groups    = ["${aws_security_group.elb-sg.id}"]
+  instances          = ["${aws_instance.nginx1.id}, ${aws_instance.nginx2.id}"]
 listener {
   instance_port     = 80
   instance_protocol = "http"
   lb_port           = 80
   lb_protocol       = "http"
-}
+ }
 }
 
 ################################################################################
