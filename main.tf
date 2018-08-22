@@ -181,7 +181,7 @@ resource "aws_elb" "web" {
   subnets            = ["${aws_subnet.subnet1.id}, ${aws_subnet.subnet2.id}"]
   security_groups    = ["${aws_security_group.elb-sg.id}"]
   instances          = ["${aws_instance.nginx1.id}, ${aws_instance.nginx2.id}"]
-  availability_zones = [${data.aws_availability_zones.available.names[0]}, ${data.aws_availability_zones.available.names[1]}]
+  availability_zones = ["${data.aws_availability_zones.available.names[0]}, ${data.aws_availability_zones.available.names[1]}"]
 listener {
   instance_port     = 80
   instance_protocol = "http"
