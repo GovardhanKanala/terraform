@@ -179,9 +179,9 @@ provisioner "remote-exec" {
 resource "aws_elb" "web" {
   name              = "ngin_web"
 
-  subnet            = ["${aws.subnet.subnet1.id}, ${aws.subnet.subnet2.id}"]
+  subnet            = ["${aws_subnet.subnet1.id}, ${aws_subnet.subnet2.id}"]
   security_group    = ["${aws_security_group.elb-sg.id}"]
-  instance          = ["${aws.instance.nginx1.id}, ${aws.instance.nginx2.id}"]
+  instance          = ["${aws_instance.nginx1.id}, ${aws_instance.nginx2.id}"]
 listener {
   instance_port     = 80
   instance_protocol = "http"
