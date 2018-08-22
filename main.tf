@@ -30,10 +30,21 @@ data "aws_availability_zones" "available" {}
 resource "aws_vpc" "vpc" {
     cidr_block            ="${var.network_address_space}"
     enable_dns_hostnames  = "true"
+tags {
+  Name = "${var.environment_tag}-vpc"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
 }
 
 resource "aws_internet_gateway" "igw" {
     vpc_id                = "${aws_vpc.vpc.id}"
+
+    tags {
+      Name = "${var.environment_tag}-igw"
+      Billing_code = "${var.billing_code_tag}"
+      Environment = "${var.environment_tag}"
+    }
 }
 
 resource "aws_subnet" "subnet1" {
@@ -41,6 +52,12 @@ resource "aws_subnet" "subnet1" {
   vpc_id                  ="${aws_vpc.vpc.id}"
   map_public_ip_on_launch = "true"
   availability_zone       = "${data.aws_availability_zones.available.names[0]}"
+
+  tags {
+    Name = "${var.environment_tag}-subnet1"
+    Billing_code = "${var.billing_code_tag}"
+    Environment = "${var.environment_tag}"
+  }
 }
 
 resource "aws_subnet" "subnet2" {
@@ -48,6 +65,12 @@ resource "aws_subnet" "subnet2" {
   vpc_id                  = "${aws_vpc.vpc.id}"
   map_public_ip_on_launch = "true"
   availability_zone       = "${data.aws_availability_zones.available.names[1]}"
+  tags {
+    Name = "${var.environment_tag}-subnet2"
+    Billing_code = "${var.billing_code_tag}"
+    Environment = "${var.environment_tag}"
+  }
+
 }
 # ROUTING #
 
@@ -58,6 +81,13 @@ resource "aws_route_table" "rtb" {
    cidr_block             = "0.0.0.0/0"
    gateway_id             = "${aws_internet_gateway.igw.id}"
        }
+       tags {
+         Name = "${var.environment_tag}-rtb"
+         Billing_code = "${var.billing_code_tag}"
+         Environment = "${var.environment_tag}"
+       }
+
+
 }
 
 resource "aws_route_table_association" "rta-subnet1" {
@@ -99,6 +129,13 @@ egress {
   protocol                = "-1"
   cidr_blocks             = ["0.0.0.0/0"]
 }
+
+tags {
+  Name = "${var.environment_tag}-nginx"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
+
 }
 
 
@@ -123,6 +160,12 @@ egress {
   protocol                = "-1"
   cidr_blocks             = ["0.0.0.0/0"]
 }
+tags {
+  Name = "${var.environment_tag}-elb-sg"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
+
 }
 
 
@@ -147,6 +190,14 @@ provisioner "remote-exec" {
     "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
     ]
 }
+
+tags {
+  Name = "${var.environment_tag}-nginx1"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
+
+
 }
 
 
@@ -171,6 +222,11 @@ provisioner "remote-exec" {
     "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
     ]
 }
+tags {
+  Name = "${var.environment_tag}-nginx2"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
 }
 
 
@@ -189,6 +245,90 @@ listener {
   lb_protocol       = "http"
  }
 }
+
+#s3 Bucket config
+resource "aws_iam_user" "write_user" {
+    name = "${var.environment_tag}-s3-write-user"
+    force_destroy = true
+}
+
+resource "aws_iam_access_key" "write_user" {
+    user = "${aws.iam_user.write_user.name}"
+}
+
+resource "aws_iam_user_policy" "write_user_pol" {
+    name   = "write"
+    user   = "${aws_iam_user.write_user.name}"
+    policy = <<EOF
+{
+  "Version": "2012-10-17"
+  "Statement": [
+  {
+    "Effect": "Allow",
+    "Action": "s3:*",
+    "Resource": [
+      "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}",
+      "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}/*"
+    ]
+  }
+  ]
+}
+EOF
+}
+
+resource "aws_s3_bucket" "web_bucket" {
+  bucket        = "${var.environment_tag}-${var.bucket_name}"
+  acl           = "private"
+  force_destroy = true
+
+    policy      = <<EOF
+{
+  "Version": "2008-10-17"
+  "Statement":[
+        {
+          "Sid": "PublicReadForGetBucketObjects"
+          "Effect": "Allow"
+          "Principal": {
+          "AWS": "*"
+        },
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}/*"
+        },
+  {
+        "Sid":"",
+        "Effect": "Allow",
+        "Priniciple": {
+              "AWS": "${aws_iam_user.write_user.arn}"
+        },
+        "Action": "s3:*",
+        "Resource":[
+             "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}",
+             "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}/*"
+           ]
+         }
+       ]
+     }
+}
+EOF
+tags {
+  Name = "${var.environment_tag}-web_bucket"
+  Billing_code = "${var.billing_code_tag}"
+  Environment = "${var.environment_tag}"
+}
+
+resource "aws_s3_bucket_object" "website" {
+    bucket = "${aws_s3_bucket.web_bucket.bucket}"
+    key = "/website/index.html"
+    source = "./index.html"
+}
+
+resource "aws_s3_bucket_object" "graphic" {
+    bucket = "${aws_s3_bucket.web_bucket.bucket}"
+    key = "/website/Globo_logo_Vert.png"
+    source = "./Globo_logo_Vert.png"
+}
+
+
 
 ################################################################################
 #output
