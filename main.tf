@@ -327,7 +327,7 @@ resource "aws_iam_user_policy" "write_user_pol" {
     user   = "${aws_iam_user.write_user.name}"
     policy = <<EOF
 {
-  "Version": "2012-10-17"
+  "Version": "2012-10-17",
   "Statement": [
   {
     "Effect": "Allow",
@@ -381,7 +381,7 @@ tags {
   Billing_code = "${var.billing_code_tag}"
   Environment = "${var.environment_tag}"
 }
-
+}
 resource "aws_s3_bucket_object" "website" {
     bucket = "${aws_s3_bucket.web_bucket.bucket}"
     key = "/website/index.html"
@@ -394,7 +394,7 @@ resource "aws_s3_bucket_object" "graphic" {
     source = "./Globo_logo_Vert.png"
 }
 
-}
+
 
 ################################################################################
 #output
