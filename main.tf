@@ -349,7 +349,7 @@ resource "aws_s3_bucket" "web_bucket" {
 
     policy      = <<EOF
 {
-  "Version": "2008-10-17"
+  "Version": "2008-10-17",  
   "Statement":[
         {
           "Sid": "PublicReadForGetBucketObjects"
