@@ -209,7 +209,7 @@ EOF
    destination = "/home/ec2-user/nginx"
 }
 
-provisioner "remote_exec" {
+provisioner "remote-exec" {
   inline = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
@@ -273,7 +273,7 @@ EOF
    destination = "/home/ec2-user/nginx"
 }
 
-provisioner "remote_exec" {
+provisioner "remote-exec" {
   inline = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
