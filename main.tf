@@ -219,7 +219,7 @@ provisioner "remote_exec" {
     "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/index.html .",
     "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/Globo_logo_Vert.png .",
     "sudo cp /home/ec2-user/index.html /usr/share/nginx/html/index.html",
-    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png"
+    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png",
     "sudo logrotate -f /etc/logrotate.conf"
   ]
 }
@@ -257,7 +257,7 @@ destination = "/home/ec2-user/.s3cfg"
 
 provisioner "file" {
   content = <<EOF
-  /var/log/nginx/*log{
+  /var/log/nginx/*log {
     daily
     rotate 10
     missingok
@@ -283,7 +283,7 @@ provisioner "remote_exec" {
     "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/index.html .",
     "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/Globo_logo_Vert.png .",
     "sudo cp /home/ec2-user/index.html /usr/share/nginx/html/index.html",
-    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png"
+    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png",
     "sudo logrotate -f /etc/logrotate.conf"
   ]
 }
@@ -319,7 +319,7 @@ resource "aws_iam_user" "write_user" {
 }
 
 resource "aws_iam_access_key" "write_user" {
-    user = "${aws.iam_user.write_user.name}"
+    user = "${aws_iam_user.write_user.name}"
 }
 
 resource "aws_iam_user_policy" "write_user_pol" {
@@ -394,7 +394,7 @@ resource "aws_s3_bucket_object" "graphic" {
     source = "./Globo_logo_Vert.png"
 }
 
-
+}
 
 ################################################################################
 #output
