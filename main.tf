@@ -181,14 +181,47 @@ connection {
   user                    = "ec2-user"
   private_key             = "${file(var.private_key_path)}"
 }
+provisioner "file" {
+  content = <<EOF
+access_key = ${aws_iam_access_key.write_user.id}
+s3_secret_key = ${aws_iam_access_key.write_user.secret}
+use_https = True
+bucket_location = US
+EOF
+destination = "/home/ec2-user/.s3cfg"
+}
 
-provisioner "remote-exec" {
-  inline            = [
+provisioner "file" {
+  content = <<EOF
+  /var/log/nginx/*log{
+    daily
+    rotate 10
+    missingok
+    compress
+    sharedscripts
+    postrotate
+      INSTANCE_ID=`curl --silent http://169.254.169.254/latest/meta-data/instance-id`
+      /usr/local/bin/s3cmd sync /var/log/nginx/access.log-* s3://${aws_s3_bucket.web_bucket.id}/$INSTANCE_ID/nginx/
+      /usr/local/bin/s3cmd sync /var/log/nginx/error.log-* s3://${aws_s3_bucket.web_bucket.id}/$INSTANCE_ID/nginx/
+   endscript
+  }
+EOF
+   destination = "/home/ec2-user/nginx"
+}
+
+provisioner "remote_exec" {
+  inline = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
-    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /usr/share/nginx/html/index.html",
-    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
-    ]
+    "sudo cp /home/ec2-user/.s3cfg /root/.s3cfg",
+    "sudo cp /home/ec2-user/nginx/ /etc/logrotate.d/nginx",
+    "sudo pip install s3cmd",
+    "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/index.html .",
+    "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/Globo_logo_Vert.png .",
+    "sudo cp /home/ec2-user/index.html /usr/share/nginx/html/index.html",
+    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png"
+    "sudo logrotate -f /etc/logrotate.conf"
+  ]
 }
 
 tags {
@@ -196,11 +229,10 @@ tags {
   Billing_code = "${var.billing_code_tag}"
   Environment = "${var.environment_tag}"
 }
-
-
 }
 
 
+## INSTANCE-2 ##
 
 resource "aws_instance" "nginx2" {
   ami                     = "ami-c58c1dd3"
@@ -213,15 +245,49 @@ connection {
   user                    = "ec2-user"
   private_key             = "${file(var.private_key_path)}"
 }
+provisioner "file" {
+  content = <<EOF
+access_key = ${aws_iam_access_key.write_user.id}
+s3_secret_key = ${aws_iam_access_key.write_user.secret}
+use_https = True
+bucket_location = US
+EOF
+destination = "/home/ec2-user/.s3cfg"
+}
 
-provisioner "remote-exec" {
-  inline            = [
+provisioner "file" {
+  content = <<EOF
+  /var/log/nginx/*log{
+    daily
+    rotate 10
+    missingok
+    compress
+    sharedscripts
+    postrotate
+      INSTANCE_ID=`curl --silent http://169.254.169.254/latest/meta-data/instance-id`
+      /usr/local/bin/s3cmd sync /var/log/nginx/access.log-* s3://${aws_s3_bucket.web_bucket.id}/$INSTANCE_ID/nginx/
+      /usr/local/bin/s3cmd sync /var/log/nginx/error.log-* s3://${aws_s3_bucket.web_bucket.id}/$INSTANCE_ID/nginx/
+   endscript
+  }
+EOF
+   destination = "/home/ec2-user/nginx"
+}
+
+provisioner "remote_exec" {
+  inline = [
     "sudo yum install nginx -y",
     "sudo service nginx start",
-    "echo \"<h1>${self.public_dns}</h1>\" | sudo tee /usr/share/nginx/html/index.html",
-    "echo \"<h2>${self.public_ip}</h2>\"  | sudo tee -a /usr/share/nginx/html/index.html",
-    ]
+    "sudo cp /home/ec2-user/.s3cfg /root/.s3cfg",
+    "sudo cp /home/ec2-user/nginx/ /etc/logrotate.d/nginx",
+    "sudo pip install s3cmd",
+    "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/index.html .",
+    "s3cmd get s3://${aws_s3_bucket.web_bucket.id}/website/Globo_logo_Vert.png .",
+    "sudo cp /home/ec2-user/index.html /usr/share/nginx/html/index.html",
+    "sudo cp /home/ec2-user/Globo_logo_Vert.png /usr/share/nginx/html/Globo_logo_Vert.png"
+    "sudo logrotate -f /etc/logrotate.conf"
+  ]
 }
+
 tags {
   Name = "${var.environment_tag}-nginx2"
   Billing_code = "${var.billing_code_tag}"

@@ -31,11 +31,11 @@ variable "subnet2_address_space" {
   default = "10.1.1.0/24"
 }
 variable "billing_code_tag" {
-  default = ""
+  default = "ACCT86753176"
 }
 variable "environment_tag" {
-  default = ""
+  default = "dev"
 }
 variable "bucket_name" {
-  default = ""
+  default = "globomantics-web-dev"
 }
