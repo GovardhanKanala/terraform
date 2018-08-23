@@ -349,11 +349,11 @@ resource "aws_s3_bucket" "web_bucket" {
 
     policy      = <<EOF
 {
-  "Version": "2008-10-17",  
-  "Statement":[
+  "Version": "2008-10-17",
+  "Statement": [
         {
-          "Sid": "PublicReadForGetBucketObjects"
-          "Effect": "Allow"
+          "Sid": "PublicReadForGetBucketObjects",
+          "Effect": "Allow",
           "Principal": {
           "AWS": "*"
         },
@@ -367,7 +367,7 @@ resource "aws_s3_bucket" "web_bucket" {
               "AWS": "${aws_iam_user.write_user.arn}"
         },
         "Action": "s3:*",
-        "Resource":[
+        "Resource": [
              "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}",
              "arn:aws:s3:::${var.environment_tag}-${var.bucket_name}/*"
            ]
