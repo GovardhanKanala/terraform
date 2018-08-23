@@ -374,7 +374,6 @@ resource "aws_s3_bucket" "web_bucket" {
          }
        ]
      }
-}
 EOF
 tags {
   Name = "${var.environment_tag}-web_bucket"
