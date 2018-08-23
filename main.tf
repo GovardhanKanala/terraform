@@ -363,7 +363,7 @@ resource "aws_s3_bucket" "web_bucket" {
   {
         "Sid":"",
         "Effect": "Allow",
-        "Priniciple": {
+        "Principal": {
               "AWS": "${aws_iam_user.write_user.arn}"
         },
         "Action": "s3:*",
